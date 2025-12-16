@@ -5,7 +5,7 @@ Port from moveToPos() function in the original Arduino code
 
 import math
 from utils.vectors import Vector3
-from utils.helpers import constrain, angle_to_microseconds
+from utils.helpers import constrain, angle_to_microseconds, microseconds_to_angle
 import config
 
 
@@ -126,13 +126,13 @@ class HexapodKinematics:
         femur_microseconds = angle_to_microseconds(theta2)
         tibia_microseconds = angle_to_microseconds(theta3)
         
-        # Write to servos
-        self.servo_controller.write_leg_servos(
-            leg,
-            coxa_microseconds,
-            femur_microseconds,
-            tibia_microseconds
-        )
+        # Convert microseconds to degrees (500-2500μs maps to 0-180°)
+        coxa_angle = microseconds_to_angle(coxa_microseconds)
+        femur_angle = microseconds_to_angle(femur_microseconds)
+        tibia_angle = microseconds_to_angle(tibia_microseconds)
+        
+        # Write to servos (new API expects list of angles)
+        self.servo_controller.write_leg_servos(leg, [coxa_angle, femur_angle, tibia_angle])
         
         if config.DEBUG_MODE and config.PRINT_SERVO_VALUES:
             print(f"Leg {leg}: pos={pos}, angles=({theta1:.1f}°, {theta2:.1f}°, {theta3:.1f}°)")
