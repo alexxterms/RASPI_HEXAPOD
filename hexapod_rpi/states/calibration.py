@@ -4,6 +4,13 @@ Allows fine-tuning of individual servo offsets
 Port from Calibration_State.ino
 """
 
+import sys
+import os
+
+# Add parent directory to path for imports when running standalone
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from utils.vectors import Vector3
 from utils.helpers import lerp
 import config
