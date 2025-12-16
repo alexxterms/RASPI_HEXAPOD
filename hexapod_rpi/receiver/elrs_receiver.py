@@ -5,6 +5,13 @@ Supports both SBUS and PWM input modes
 
 import time
 import serial
+import sys
+import os
+
+# Add parent directory to path for imports when running standalone
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import config
 from utils.helpers import Timer, map_float, constrain
 
