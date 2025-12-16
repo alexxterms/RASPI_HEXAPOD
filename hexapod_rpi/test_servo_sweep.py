@@ -2,22 +2,31 @@
 """
 Simple servo sweep test for PCA9685 on Raspberry Pi
 Sweeps a single servo through its full range of motion
+Supports multiple PCA9685 boards with different I2C addresses
 """
 
 import time
 from adafruit_servokit import ServoKit
 
-# Initialize PCA9685 with 16 channels
-kit = ServoKit(channels=16)
+# Initialize PCA9685 boards with different I2C addresses
+# Default address is 0x40, second board typically uses 0x41
+# You can set addresses via the solder jumpers on the PCA9685 board
+kit1 = ServoKit(channels=16, address=0x40)  # First board (default address)
+kit2 = ServoKit(channels=16, address=0x41)  # Second board
 
 # Configuration
+BOARD = 2          # Which board to test: 1 or 2
 SERVO_CHANNEL = 0  # Change this to test different servo channels (0-15)
 MIN_ANGLE = 0      # Minimum servo angle
 MAX_ANGLE = 180    # Maximum servo angle
 STEP = 5           # Degrees to move per step
 DELAY = 0.05       # Delay between steps (seconds)
 
-print(f"Starting servo sweep test on channel {SERVO_CHANNEL}")
+# Select the correct board
+kit = kit2 if BOARD == 2 else kit1
+
+print(f"Starting servo sweep test on BOARD {BOARD}, channel {SERVO_CHANNEL}")
+print(f"Board I2C address: {hex(0x41 if BOARD == 2 else 0x40)}")
 print(f"Sweeping from {MIN_ANGLE}° to {MAX_ANGLE}° and back")
 print("Press Ctrl+C to stop")
 
