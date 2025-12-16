@@ -276,32 +276,86 @@ class ELRSReceiver:
 # Test code
 if __name__ == "__main__":
     """Test ELRS receiver (requires hardware)"""
-    print("Testing ELRS Receiver...")
+    print("\n" + "="*70)
+    print("ELRS RECEIVER TEST")
+    print("="*70)
     print(f"Mode: {config.ELRS_MODE}")
+    print(f"Serial Port: {config.ELRS_SBUS_SERIAL}")
+    print()
+    
+    print("⚠️  HARDWARE REQUIREMENTS:")
+    print("  - Raspberry Pi with UART enabled")
+    print("  - ELRS receiver connected to GPIO 14 (UART TX)")
+    print("  - Receiver powered and bound to transmitter")
+    print()
     
     try:
+        print("Initializing receiver...")
         receiver = ELRSReceiver()
         Timer.init()
         
-        print("Reading receiver data for 10 seconds...")
-        print("(Press Ctrl+C to stop)")
+        print("✓ Receiver initialized successfully!")
+        print("\nReading receiver data for 10 seconds...")
+        print("(Move sticks on your RadioMaster Pocket)")
+        print("(Press Ctrl+C to stop)\n")
+        print("-"*70)
         
         start_time = Timer.millis()
+        update_count = 0
+        
         while Timer.millis() - start_time < 10000:
             if receiver.update():
+                update_count += 1
                 data = receiver.get_control_data()
-                print(f"Connected: {data['connected']}, "
-                      f"Joy1: ({data['joy1_x']:.2f}, {data['joy1_y']:.2f}), "
-                      f"Gait: {data['gait']}")
+                
+                # Print every 10th update to avoid spam
+                if update_count % 10 == 0:
+                    print(f"Connected: {data['connected']:5} | "
+                          f"Joy1: ({data['joy1_x']:+.2f}, {data['joy1_y']:+.2f}) | "
+                          f"Joy2: ({data['joy2_x']:+.2f}, {data['joy2_y']:+.2f}) | "
+                          f"Gait: {data['gait']} | "
+                          f"Btn: {data['button1']},{data['button2']}")
             
             time.sleep(0.02)  # 50Hz update rate
         
-        print("Test complete!")
+        print("-"*70)
+        print(f"\n✓ Test complete! Received {update_count} updates")
+        receiver.cleanup()
     
     except KeyboardInterrupt:
-        print("\nTest interrupted by user")
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
+        print("\n\nTest interrupted by user")
         if 'receiver' in locals():
             receiver.cleanup()
+    
+    except Exception as e:
+        print(f"\n❌ ERROR: {e}")
+        print("\n🔧 TROUBLESHOOTING:")
+        print("  1. Are you running on a Raspberry Pi?")
+        print("     (This test requires actual hardware)")
+        print()
+        print("  2. Is UART enabled on your Raspberry Pi?")
+        print("     Run: sudo raspi-config")
+        print("     → Interface Options → Serial Port")
+        print("     → Disable login shell, Enable serial port hardware")
+        print()
+        print("  3. Is the ELRS receiver connected?")
+        print(f"     GPIO 14 (UART TX) → {config.ELRS_SBUS_SERIAL}")
+        print()
+        print("  4. Is the receiver powered and bound?")
+        print("     Check LED on receiver (should be solid or blinking)")
+        print()
+        print("  5. Check serial port permissions:")
+        print("     sudo usermod -a -G dialout $USER")
+        print("     (then logout and login again)")
+        print()
+        print("📚 For mock testing without hardware, see:")
+        print("   - states/walking.py (has mock test)")
+        print("   - states/standing.py (has mock test)")
+        print("   - servo_controller.py (has mock test)")
+        print()
+        
+        if 'receiver' in locals():
+            try:
+                receiver.cleanup()
+            except:
+                pass
