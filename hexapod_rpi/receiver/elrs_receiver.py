@@ -67,6 +67,7 @@ class ELRSReceiver:
     
     def _init_sbus(self):
         """Initialize SBUS serial communication"""
+        self.serial_port = None
         try:
             # SBUS: 100000 baud, 8E2 (8 data bits, even parity, 2 stop bits), inverted
             self.serial_port = serial.Serial(
@@ -80,6 +81,8 @@ class ELRSReceiver:
             print(f"SBUS initialized on {config.ELRS_SBUS_SERIAL}")
         except Exception as e:
             print(f"Error initializing SBUS: {e}")
+            # Make sure serial_port is None if initialization failed
+            self.serial_port = None
             raise
     
     def _init_pwm(self):
@@ -263,14 +266,21 @@ class ELRSReceiver:
         }
     
     def cleanup(self):
-        """Clean up resources"""
-        if self.mode == 'SBUS' and hasattr(self, 'serial_port'):
-            self.serial_port.close()
-            print("SBUS port closed")
+        """Clean up resources - always safe to call"""
+        try:
+            if self.mode == 'SBUS' and hasattr(self, 'serial_port') and self.serial_port is not None:
+                if self.serial_port.is_open:
+                    self.serial_port.close()
+                    print("SBUS port closed")
+        except Exception as e:
+            print(f"Warning during serial cleanup: {e}")
         
-        if self.mode == 'PWM' and GPIO_AVAILABLE:
-            GPIO.cleanup()
-            print("GPIO cleaned up")
+        try:
+            if self.mode == 'PWM' and GPIO_AVAILABLE:
+                GPIO.cleanup()
+                print("GPIO cleaned up")
+        except Exception as e:
+            print(f"Warning during GPIO cleanup: {e}")
 
 
 # Test code
