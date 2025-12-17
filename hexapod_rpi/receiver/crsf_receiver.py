@@ -318,6 +318,26 @@ class CRSFReceiver:
             'parser_invalid': parser_stats.invalid_frames if parser_stats else 0,
         }
     
+    def get_control_data(self):
+        """
+        Get all control data in a single dictionary
+        Compatible with main.py expected format
+        
+        Returns:
+            dict: All control values
+        """
+        return {
+            'connected': self.connected,
+            'joy1_x': self.joystick1_x,      # Rotation (left stick X)
+            'joy1_y': self.speed_multiplier, # Speed (left stick Y converted to 0-2 range)
+            'joy2_x': self.joystick2_x,      # Strafe (right stick X)
+            'joy2_y': self.joystick1_y,      # Forward/back (right stick Y, but from Ch15/pitch)
+            'gait': self.gait_index,         # Current gait (0-5)
+            'button1': self.calibration_mode, # Calibration mode switch
+            'button2': self.sleep_mode,       # Sleep mode switch
+            'height': self.height_control,    # Height control
+        }
+    
     def print_status(self):
         """Print current receiver status and channel values"""
         if not self.connected:

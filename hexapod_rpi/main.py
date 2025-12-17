@@ -10,7 +10,7 @@ from utils.vectors import Vector2, Vector3
 from utils.helpers import Timer, lerp, get_point_on_bezier_curve
 from servo_controller import HexapodServoController
 from kinematics import HexapodKinematics
-from receiver.elrs_receiver import ELRSReceiver
+from receiver.crsf_receiver import CRSFReceiver
 from storage import HexapodStorage
 from states.walking import WalkingState
 from states.standing import StandingState
@@ -52,7 +52,7 @@ class HexapodController:
         # Initialize ELRS receiver
         print("\nInitializing ELRS receiver...")
         try:
-            self.receiver = ELRSReceiver()
+            self.receiver = CRSFReceiver()
         except Exception as e:
             print(f"Warning: Could not initialize receiver: {e}")
             self.receiver = None
@@ -112,8 +112,7 @@ class HexapodController:
         print("Initializing state objects...")
         self.standing_state = StandingState(
             self.kinematics,
-            current_points,
-            self.distance_from_ground
+            current_points
         )
         
         self.walking_state = WalkingState(
