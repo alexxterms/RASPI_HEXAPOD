@@ -268,10 +268,12 @@ class WalkingState:
         # Apply stride length multiplier to y component only
         v = Vector2(v.x, v.y * self.stride_length_multiplier)
         v.y = constrain(v.y, -self.max_stride_length / 2, self.max_stride_length / 2)
-        v = v * self.global_speed_multiplier
+        # NOTE: Do NOT scale by global_speed_multiplier here!
+        # Speed multiplier only affects cycle progress, not stride length
+        # Our joystick is normalized 0-1, not 0-100 like Arduino
         
         if config.DEBUG_MODE and leg == 0:
-            print(f"      get_gait_point: AFTER v={v}, speed_mult={self.global_speed_multiplier:.2f}")
+            print(f"      get_gait_point: AFTER v={v} (stride_mult={self.stride_length_multiplier})")
         
         if not self.dynamic_stride_length:
             rotate_stride_length = -70 if rotate_stride_length < 0 else 70
