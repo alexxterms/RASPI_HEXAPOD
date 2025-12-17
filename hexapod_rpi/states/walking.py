@@ -257,6 +257,9 @@ class WalkingState:
         rotate_stride_length = joy2_current.x * self.global_rotation_multiplier
         v = joy1_current.copy()
         
+        if config.DEBUG_MODE and leg == 0:
+            print(f"      get_gait_point: START v={v}, stride_mult={self.stride_length_multiplier}")
+        
         # Handle dynamic vs fixed stride length
         if not self.dynamic_stride_length:
             v = v.normalize()
@@ -266,6 +269,9 @@ class WalkingState:
         v = Vector2(v.x, v.y * self.stride_length_multiplier)
         v.y = constrain(v.y, -self.max_stride_length / 2, self.max_stride_length / 2)
         v = v * self.global_speed_multiplier
+        
+        if config.DEBUG_MODE and leg == 0:
+            print(f"      get_gait_point: AFTER v={v}, speed_mult={self.global_speed_multiplier:.2f}")
         
         if not self.dynamic_stride_length:
             rotate_stride_length = -70 if rotate_stride_length < 0 else 70
@@ -289,17 +295,29 @@ class WalkingState:
                 -v.y * self.stride_multiplier[leg],
                 self.distance_from_ground
             )
+            
+            if config.DEBUG_MODE and leg == 0:
+                print(f"      PROPELLING: v={v}, stride_mult[{leg}]={self.stride_multiplier[leg]}")
+                print(f"      target_point BEFORE rotation: {target_point}")
+            
             # Rotate around leg placement point
             self.control_points[1] = self.rotate_point(
                 target_point,
                 self.leg_placement_angle * self.rotation_multiplier[leg],
                 Vector2(self.distance_from_center, 0)
             )
+            
+            if config.DEBUG_MODE and leg == 0:
+                print(f"      target_point AFTER rotation: {self.control_points[1]}")
+            
             self.control_points_amount = 2
             straight_point = get_point_on_bezier_curve(
                 self.control_points, self.control_points_amount,
                 map_float(t, 0, push_fraction, 0, 1)
             )
+            
+            if config.DEBUG_MODE and leg == 0:
+                print(f"      straight_point from bezier: {straight_point}")
             
             # Rotation control points
             self.rotate_control_points[0] = self.cycle_start_points[leg]
