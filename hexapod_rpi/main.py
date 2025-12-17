@@ -235,13 +235,22 @@ class HexapodController:
             return
         
         # Adjust height based on joy2_y
+        height_adjustment = 0
         if self.receiver and self.connected:
             height_adjustment = self.joy2_current.y * 30  # ±30mm
             self.target_distance_from_ground = config.DISTANCE_FROM_GROUND_BASE + height_adjustment
-            self.standing_state.set_target_height(self.target_distance_from_ground)
+        else:
+            self.target_distance_from_ground = config.DISTANCE_FROM_GROUND_BASE
         
         # Update standing state
-        self.standing_state.update()
+        # Args: distance_from_ground, standing_distance_adjustment, from_state, move_all_at_once, high_lift
+        self.standing_state.update(
+            self.target_distance_from_ground,
+            height_adjustment,
+            self.current_state,
+            False,  # move_all_at_once
+            False   # high_lift
+        )
         
         # Transition to walking if joystick moved significantly
         if abs(self.joy1_current.x) > 0.1 or abs(self.joy1_current.y) > 0.1:

@@ -117,6 +117,10 @@ class CRSFReceiver:
         self.connected = False
         print("CRSF Receiver disconnected")
     
+    def cleanup(self):
+        """Cleanup receiver (alias for disconnect for compatibility with main.py)"""
+        self.disconnect()
+    
     def update(self):
         """
         Read and parse incoming CRSF data
