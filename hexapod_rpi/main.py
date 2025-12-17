@@ -170,10 +170,12 @@ class HexapodController:
                 self.joy2_target.x = data['joy2_x']
                 self.joy2_target.y = data['joy2_y']
                 
-                # Update gait
-                self.current_gait = data['gait']
-                if self.walking_state:
-                    self.walking_state.set_gait(self.current_gait)
+                # Update gait only if it changed
+                new_gait = data['gait']
+                if new_gait != self.current_gait:
+                    self.current_gait = new_gait
+                    if self.walking_state:
+                        self.walking_state.set_gait(self.current_gait)
                 
                 # Handle buttons for state changes
                 if data['button1']:
