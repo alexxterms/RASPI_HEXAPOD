@@ -223,8 +223,10 @@ class WalkingState:
             self.kinematics.move_to_pos(leg, pos)
         
         # Update cycle progress
+        # Scale up the movement amount to get reasonable walking speed
+        # Target: complete cycle in ~1-2 seconds (50-100 frames) = 10-20 points/frame
         progress_change = (max(abs(self.forward_amount), abs(self.turn_amount)) * 
-                          self.speed_multiplier) * self.global_speed_multiplier
+                          self.speed_multiplier * 20.0) * self.global_speed_multiplier
         progress_change = constrain(progress_change, 0, 
                                    self.max_speed * self.global_speed_multiplier)
         
