@@ -285,17 +285,40 @@ class HexapodController:
                 self.standing_state.reset()
             return
         
-        # Update movement direction and rotation from joysticks
-        # RadioMaster Pocket mapping:
-        # LEFT stick:  Y (Ch3/Throttle) = forward/back
-        #              X (Ch4/Yaw) = rotation
-        # RIGHT stick: X (Ch1/Aileron) = strafe left/right
-        #              Y (Ch2/Elevator) = height adjustment
-        translation = Vector2(self.joy2_current.x, self.joy1_current.y)  # strafe, forward/back
-        rotation = self.joy1_current.x  # yaw rotation
+        # Prepare joystick values for walking state
+        # WalkingState.update() expects:
+        #   joy1_current: Vector2 (forward/back, strafe) - movement direction
+        #   joy2_current: Vector2 (rotation, height) - rotation and height control
+        #   slider1: Speed multiplier (0-100 scale)
+        #   distance_from_ground: Current height
         
-        # Update walking state
-        self.walking_state.update(translation, rotation)
+        # From receiver:
+        #   joy1_x = rotation (left stick X)
+        #   joy1_y = speed_multiplier (left stick Y, already 0-2)
+        #   joy2_x = strafe (right stick X)
+        #   joy2_y = forward/back (right stick Y)
+        
+        # Map receiver values to what WalkingState expects
+        joy1_for_walking = Vector2(self.joy2_current.y, self.joy2_current.x)  # forward/back, strafe
+        joy2_for_walking = Vector2(self.joy1_current.x, 0.0)  # rotation, height (height from separate channel)
+        
+        # Convert speed multiplier (0-2) to slider range (0-100)
+        # joy1_y from receiver is already speed_multiplier (0-2 range)
+        # Map to 0-100: 0.0→0, 1.0→50, 2.0→100
+        slider1 = self.joy1_current.y * 50.0
+        
+        # Get height control from receiver if available
+        height = self.distance_from_ground
+        if self.receiver and self.connected:
+            data = self.receiver.get_control_data()
+            if 'height' in data:
+                # Height control adjusts distance_from_ground
+                # Map height control (-1 to 1) to offset (-30 to 30mm)
+                height_offset = data['height'] * 30.0
+                height = max(50, min(250, self.distance_from_ground + height_offset))
+        
+        # Update walking state with all required arguments
+        self.walking_state.update(joy1_for_walking, joy2_for_walking, slider1, height)
     
     def _state_calibrate(self):
         """Calibration state - using complete CalibrationState class"""
