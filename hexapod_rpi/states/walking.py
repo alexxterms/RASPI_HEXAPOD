@@ -210,6 +210,11 @@ class WalkingState:
         self.forward_amount = joy1_current.magnitude()
         self.turn_amount = joy2_current.x
         
+        # Debug: Check if we're getting movement commands
+        if config.DEBUG_MODE and (abs(self.forward_amount) > 0.01 or abs(self.turn_amount) > 0.01):
+            print(f"  WalkingState: fwd={self.forward_amount:.2f}, turn={self.turn_amount:.2f}, " +
+                  f"speed_mult={self.global_speed_multiplier:.2f}")
+        
         # Move all legs to their gait positions
         for leg in range(6):
             pos = self.get_gait_point(leg, self.push_fraction, joy1_current, joy2_current)

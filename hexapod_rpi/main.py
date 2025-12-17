@@ -307,6 +307,10 @@ class HexapodController:
         # Map to 0-100: 0.0→0, 1.0→50, 2.0→100
         slider1 = self.joy1_current.y * 50.0
         
+        # Debug: Print joystick values to see what's being sent
+        if config.DEBUG_MODE:
+            print(f"Walking inputs: joy1={joy1_for_walking}, joy2={joy2_for_walking}, slider1={slider1:.1f}")
+        
         # Get height control from receiver if available
         height = self.distance_from_ground
         if self.receiver and self.connected:
