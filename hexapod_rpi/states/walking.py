@@ -75,21 +75,6 @@ class WalkingState:
         self.previous_gait = None
         self.current_gait = config.Gait.TRI
     
-    def reset(self):
-        """
-        Reset walking state - reinitialize all legs
-        Called when transitioning from standing to walking
-        """
-        # Reset all leg states to RESET so they start fresh
-        for i in range(6):
-            self.leg_states[i] = config.LegState.RESET
-            self.t_array[i] = 0.0
-            self.cycle_start_points[i] = self.current_points[i]
-        
-        # Reset movement parameters
-        self.forward_amount = 0.0
-        self.turn_amount = 0.0
-    
     def set_gait(self, gait):
         """
         Set current gait and initialize parameters
@@ -419,3 +404,20 @@ class WalkingState:
         """Set cycle start points for all legs"""
         for i in range(6):
             self.cycle_start_points[i] = self.current_points[i].copy()
+    
+    def reset(self):
+        """
+        Reset walking state for next transition
+        Resets all timing and state tracking variables
+        """
+        # Reset timing arrays
+        self.t_array = [0.0] * 6
+        self.cycle_progress = [0.0] * 6
+        self.leg_states = [config.LegState.RESET] * 6
+        
+        # Reset cycle start points
+        self.set_cycle_start_points_all()
+        
+        # Reset movement parameters
+        self.forward_amount = 0.0
+        self.turn_amount = 0.0
