@@ -218,6 +218,8 @@ class WalkingState:
         # Move all legs to their gait positions
         for leg in range(6):
             pos = self.get_gait_point(leg, self.push_fraction, joy1_current, joy2_current)
+            if config.DEBUG_MODE and leg == 0:  # Only print leg 0 to avoid spam
+                print(f"    Leg 0 pos: {pos}")
             self.kinematics.move_to_pos(leg, pos)
         
         # Update cycle progress
@@ -225,6 +227,9 @@ class WalkingState:
                           self.speed_multiplier) * self.global_speed_multiplier
         progress_change = constrain(progress_change, 0, 
                                    self.max_speed * self.global_speed_multiplier)
+        
+        if config.DEBUG_MODE:
+            print(f"    Progress change: {progress_change:.2f}, cycle[0]={self.cycle_progress[0]:.1f}/{self.points}")
         
         for i in range(6):
             self.cycle_progress[i] += progress_change
