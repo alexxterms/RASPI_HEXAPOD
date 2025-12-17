@@ -247,7 +247,8 @@ class WalkingState:
             v = v.normalize()
             v = v * 70
         
-        v = v * Vector2(1, self.stride_length_multiplier)
+        # Apply stride length multiplier to y component only
+        v = Vector2(v.x, v.y * self.stride_length_multiplier)
         v.y = constrain(v.y, -self.max_stride_length / 2, self.max_stride_length / 2)
         v = v * self.global_speed_multiplier
         
