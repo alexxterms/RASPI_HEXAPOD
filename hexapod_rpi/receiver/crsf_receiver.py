@@ -37,15 +37,20 @@ class CRSFReceiver:
     CH_PITCH = 14        # Channel 15 - Right stick up/down → Forward/backward
     CH_ROLL = 15         # Channel 16 - Right stick left/right → Strafe
     CH_HEIGHT = 6        # Channel 7 - Height control
-    CH_CALIBRATION = 8   # Channel 9 - Calibration mode toggle
-    CH_GAIT_1 = 9        # Channel 10 - Gait selector 1 (Gaits 0-2)
-    CH_GAIT_2 = 10       # Channel 11 - Gait selector 2 (Gaits 3-5)
-    CH_SLEEP = 11        # Channel 12 - Sleep mode toggle
+    CH_SLEEP = 7         # Channel 8 - Sleep mode toggle
+    CH_GAIT = 9          # Channel 10 - Single gait selector (all 6 gaits)
+    CH_CALIBRATION = 11  # Channel 12 - Calibration mode toggle
     
-    # Gait selector thresholds (channel 10 and 11)
-    GAIT_THRESHOLD_LOW = 400    # Below this = first gait
-    GAIT_THRESHOLD_MID = 1400   # Above low, below mid = second gait
-    # Above mid = third gait
+    # Gait selector thresholds (single channel with 6 positions)
+    # Channel 10 values: 443, 657, 871, 1086, 1300, 1514
+    GAIT_THRESHOLDS = [
+        (343, 543, 0),    # Gait 1: value ~443 → index 0
+        (771, 971, 1),    # Gait 2: value ~871 → index 1
+        (1200, 1400, 2),  # Gait 3: value ~1300 → index 2
+        (1414, 1614, 3),  # Gait 4: value ~1514 → index 3
+        (986, 1186, 4),   # Gait 5: value ~1086 → index 4
+        (557, 757, 5),    # Gait 6: value ~657 → index 5
+    ]
     
     def __init__(self):
         """Initialize CRSF receiver"""
@@ -198,7 +203,7 @@ class CRSFReceiver:
         self.joystick1_x = self._normalize_channel(self.channels[self.CH_YAW])      # Rotation
         self.joystick1_y = self._normalize_channel(self.channels[self.CH_PITCH])    # Forward/back
         self.joystick2_x = self._normalize_channel(self.channels[self.CH_ROLL])     # Strafe
-        self.joystick2_y = self._normalize_channel(self.channels[self.CH_HEIGHT])   # Height (not used for forward)
+        self.joystick2_y = self._normalize_channel(self.channels[self.CH_PITCH])   # Forward/backward
         
         # Speed control from left stick up/down (0.0 to 2.0, default 1.0)
         speed_normalized = self._normalize_channel(self.channels[self.CH_SPEED])
@@ -207,18 +212,10 @@ class CRSFReceiver:
         # Height control (normalized -1.0 to 1.0)
         self.height_control = self._normalize_channel(self.channels[self.CH_HEIGHT])
         
-        # Gait selection (3-position switches on channels 10 and 11)
-        gait_1 = self._get_gait_from_channel(self.channels[self.CH_GAIT_1])  # 0, 1, or 2
-        gait_2 = self._get_gait_from_channel(self.channels[self.CH_GAIT_2])  # 0, 1, or 2
-        
-        # Channel 10 controls gaits 0-2, Channel 11 controls gaits 3-5
-        # Determine which channel is active (not in middle position)
-        if abs(self.channels[self.CH_GAIT_1] - self.CRSF_MID) > abs(self.channels[self.CH_GAIT_2] - self.CRSF_MID):
-            # Channel 10 is more active, use gaits 0-2
-            self.gait_index = gait_1
-        else:
-            # Channel 11 is more active, use gaits 3-5
-            self.gait_index = gait_2 + 3
+        # Gait selection (single channel with 6 positions on channel 10)
+        # Values: 443, 657, 871, 1086, 1300, 1514 → Gaits 0-5
+        gait_value = self.channels[self.CH_GAIT]
+        self.gait_index = self._get_gait_from_value(gait_value)
         
         # Mode switches (treat as boolean: high = True)
         self.calibration_mode = self.channels[self.CH_CALIBRATION] > self.CRSF_MID
@@ -240,27 +237,31 @@ class CRSFReceiver:
         # Constrain to valid range
         return max(-1.0, min(1.0, normalized))
     
-    def _get_gait_from_channel(self, value):
+    def _get_gait_from_value(self, value):
         """
-        Convert 3-position switch channel to gait index (0, 1, or 2)
+        Convert single 6-position channel to gait index (0-5)
         
-        Values:
-          - 191 → 0 (first gait)
-          - 997 → 1 (second gait)
-          - 1792 → 2 (third gait)
+        Channel 10 values:
+          - 443 → Gait 0
+          - 871 → Gait 1
+          - 1300 → Gait 2
+          - 1514 → Gait 3
+          - 1086 → Gait 4
+          - 657 → Gait 5
         
         Args:
             value: CRSF channel value
         
         Returns:
-            int: Gait index (0, 1, or 2)
+            int: Gait index (0-5)
         """
-        if value < self.GAIT_THRESHOLD_LOW:
-            return 0  # Low position
-        elif value < self.GAIT_THRESHOLD_MID:
-            return 1  # Middle position
-        else:
-            return 2  # High position
+        # Check each threshold range
+        for min_val, max_val, gait_idx in self.GAIT_THRESHOLDS:
+            if min_val <= value <= max_val:
+                return gait_idx
+        
+        # Default to gait 0 if no match
+        return 0
     
     def get_joystick1(self):
         """

@@ -118,20 +118,25 @@ RC_CHANNEL_SPEED = 13      # Channel 14 - Left stick up/down → Speed control
 RC_CHANNEL_PITCH = 14      # Channel 15 - Right stick up/down → Forward/backward
 RC_CHANNEL_ROLL = 15       # Channel 16 - Right stick left/right → Strafe
 RC_CHANNEL_HEIGHT = 6      # Channel 7 - Height control
-RC_CHANNEL_CALIBRATION = 8 # Channel 9 - Calibration mode toggle
-RC_CHANNEL_GAIT_1 = 9      # Channel 10 - Gait selector 1 (Gaits 0-2)
-RC_CHANNEL_GAIT_2 = 10     # Channel 11 - Gait selector 2 (Gaits 3-5)
-RC_CHANNEL_SLEEP = 11      # Channel 12 - Sleep mode toggle
+RC_CHANNEL_SLEEP = 7       # Channel 8 - Sleep mode toggle
+RC_CHANNEL_GAIT = 9        # Channel 10 - Single gait selector (all 6 gaits)
+RC_CHANNEL_CALIBRATION = 11 # Channel 12 - Calibration mode toggle
 
 # CRSF channel value ranges (11-bit)
 CRSF_MIN = 172
 CRSF_MID = 992
 CRSF_MAX = 1811
 
-# Gait selector thresholds for 3-position switches
-GAIT_THRESHOLD_LOW = 400    # Below this = position 1 (value ~191)
-GAIT_THRESHOLD_MID = 1400   # Above low, below mid = position 2 (value ~997)
-                            # Above mid = position 3 (value ~1792)
+# Gait selector thresholds for single 6-position channel
+# Channel 10 values: 443, 657, 871, 1086, 1300, 1514
+GAIT_THRESHOLDS = [
+    (443 - 100, 443 + 100, 0),  # Gait 1: value ~443 → index 0
+    (871 - 100, 871 + 100, 1),  # Gait 2: value ~871 → index 1
+    (1300 - 100, 1300 + 100, 2), # Gait 3: value ~1300 → index 2
+    (1514 - 100, 1514 + 100, 3), # Gait 4: value ~1514 → index 3
+    (1086 - 100, 1086 + 100, 4), # Gait 5: value ~1086 → index 4
+    (657 - 100, 657 + 100, 5),   # Gait 6: value ~657 → index 5
+]
 
 # Channel value ranges (for backwards compatibility)
 RC_MIN = 172   # CRSF minimum

@@ -93,6 +93,15 @@ class HexapodController:
         print("\nAttaching servos...")
         self.servo_controller.attach_servos()
         
+        # Connect to CRSF receiver
+        if self.receiver:
+            print("\nConnecting to CRSF receiver...")
+            if self.receiver.connect():
+                print("✓ CRSF receiver connected successfully")
+            else:
+                print("✗ Failed to connect to CRSF receiver")
+                print("  Hexapod will run in manual mode (no RC control)")
+        
         print("Moving to initial position...")
         # Move all legs to a safe starting position
         initial_pos = Vector3(
