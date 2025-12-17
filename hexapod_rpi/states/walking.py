@@ -229,12 +229,15 @@ class WalkingState:
                                    self.max_speed * self.global_speed_multiplier)
         
         if config.DEBUG_MODE:
-            print(f"    Progress change: {progress_change:.2f}, cycle[0]={self.cycle_progress[0]:.1f}/{self.points}")
+            print(f"    Progress change: {progress_change:.2f}, BEFORE cycle[0]={self.cycle_progress[0]:.1f}/{self.points}")
         
         for i in range(6):
             self.cycle_progress[i] += progress_change
             if self.cycle_progress[i] >= self.points:
                 self.cycle_progress[i] = self.cycle_progress[i] - self.points
+        
+        if config.DEBUG_MODE:
+            print(f"    AFTER cycle[0]={self.cycle_progress[0]:.1f}, should have increased by {progress_change:.2f}")
     
     def get_gait_point(self, leg, push_fraction, joy1_current, joy2_current):
         """

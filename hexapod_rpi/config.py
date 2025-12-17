@@ -194,6 +194,6 @@ RC_UPDATE_FREQUENCY = 50  # Hz - RC input read frequency
 # Debug Settings
 # ============================================================================
 DEBUG_MODE = True
-PRINT_SERVO_VALUES = True  # Temporarily enable to debug servo commands
+PRINT_SERVO_VALUES = False  # Disable verbose servo output
 PRINT_RC_VALUES = False
 PRINT_STATE_CHANGES = True

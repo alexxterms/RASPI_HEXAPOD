@@ -263,12 +263,14 @@ class HexapodController:
         
         # Transition to walking if joystick moved significantly
         if abs(self.joy1_current.x) > 0.1 or abs(self.joy1_current.y) > 0.1:
-            if config.PRINT_STATE_CHANGES:
-                print(f"Transitioning to CAR state (gait: {self.current_gait})")
-            self.current_state = config.State.CAR
-            # Reset walking state
-            if self.walking_state:
-                self.walking_state.reset()
+            # Only reset when FIRST transitioning from Stand to Car
+            if self.current_state != config.State.CAR:
+                if config.PRINT_STATE_CHANGES:
+                    print(f"Transitioning to CAR state (gait: {self.current_gait})")
+                self.current_state = config.State.CAR
+                # Reset walking state only on transition
+                if self.walking_state:
+                    self.walking_state.reset()
     
     def _state_car(self):
         """Walking state - using complete WalkingState class"""
