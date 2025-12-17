@@ -117,9 +117,10 @@ class HexapodController:
         
         self.walking_state = WalkingState(
             self.kinematics,
-            current_points,
-            self.current_gait
+            current_points
         )
+        # Set initial gait
+        self.walking_state.set_gait(self.current_gait)
         
         self.calibration_state = CalibrationState(
             self.kinematics,
