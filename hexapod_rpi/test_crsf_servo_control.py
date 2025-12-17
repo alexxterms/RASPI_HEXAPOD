@@ -78,7 +78,7 @@ class ServoController:
         """
         # Only process valid RC channel packets
         if status == PacketValidationStatus.VALID:
-            if frame.frame_type == PacketsTypes.RC_CHANNELS_PACKED:
+            if frame.header.type == PacketsTypes.RC_CHANNELS_PACKED:
                 self._update_servo(frame)
         
         # Print errors for debugging
