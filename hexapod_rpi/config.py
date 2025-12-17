@@ -175,8 +175,8 @@ GAITS_LIST = [Gait.TRI, Gait.RIPPLE, Gait.WAVE, Gait.QUAD, Gait.BI, Gait.HOP]
 # ============================================================================
 # File Paths
 # ============================================================================
-CONFIG_FILE_PATH = '/home/pi/hexapod_config.json'  # Storage for offsets and calibration
-LOG_FILE_PATH = '/home/pi/hexapod.log'  # Log file
+CONFIG_FILE_PATH = '/home/alexxterms/hexapod_config.json'  # Storage for offsets and calibration
+LOG_FILE_PATH = '/home/alexxterms/hexapod.log'  # Log file
 
 # ============================================================================
 # Performance Settings
