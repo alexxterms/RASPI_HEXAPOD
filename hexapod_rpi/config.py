@@ -92,54 +92,51 @@ STRIDE_MULTIPLIER = [1, 1, 1, -1, -1, -1]  # Per-leg stride multipliers
 ROTATION_MULTIPLIER = [-1, 0, 1, -1, 0, 1]  # Per-leg rotation multipliers
 
 # ============================================================================
-# ELRS Receiver Configuration
+# ELRS Receiver Configuration (CRSF Protocol)
 # ============================================================================
-# GPIO pins for ELRS receiver (adjust based on your wiring)
-# If using SBUS: single pin for serial data
-# If using PWM: multiple pins for each channel
-ELRS_MODE = 'SBUS'  # 'SBUS' or 'PWM'
+# ELRS uses CRSF protocol at 420000 baud (not SBUS at 100000)
+ELRS_MODE = 'CRSF'  # Using CRSF protocol with crsf_parser library
 
-# For SBUS mode (serial communication)
-ELRS_SBUS_PIN = 14  # GPIO14 (UART TX)
-ELRS_SBUS_SERIAL = '/dev/serial0'  # Raspberry Pi serial port
+# Serial port for CRSF
+ELRS_SERIAL_PORT = '/dev/serial0'  # Raspberry Pi UART
+ELRS_BAUD_RATE = 420000            # CRSF standard baud rate
 
-# For PWM mode (individual channel pins)
-ELRS_PWM_PINS = {
-    'channel_1': 17,  # Roll
-    'channel_2': 18,  # Pitch
-    'channel_3': 27,  # Throttle
-    'channel_4': 22,  # Yaw
-    'channel_5': 23,  # Aux1
-    'channel_6': 24,  # Aux2
-    'channel_7': 25,  # Aux3
-    'channel_8': 5,   # Aux4
-}
+# Channel mapping for RadioMaster Pocket with ELRS
+# Your actual channel mapping (verified from test_crsf_servo_control.py):
+# Channel 16 (index 15): Roll → Strafe left/right
+# Channel 15 (index 14): Pitch → Forward/backward  
+# Channel 14 (index 13): Left stick up/down → Speed control
+# Channel 13 (index 12): Yaw → Rotation
+# Channel 7 (index 6): Height control
+# Channel 9 (index 8): Calibration mode
+# Channel 10 (index 9): Gait selector 1 (191=Gait0, 997=Gait1, 1792=Gait2)
+# Channel 11 (index 10): Gait selector 2 (191=Gait3, 997=Gait4, 1792=Gait5)
+# Channel 12 (index 11): Sleep mode
 
-# Channel mapping for RadioMaster Pocket (Standard AETR mode)
-# Note: Channels are 0-indexed in code but 1-indexed in radio world
-# RadioMaster Pocket has:
-#   - Right stick: Aileron (Ch1/roll) and Elevator (Ch2/pitch)
-#   - Left stick: Throttle (Ch3) and Rudder (Ch4/yaw)
-#
-# Standard AETR channel order:
-# Ch 0 (Ch1): Aileron (Roll) - Right stick LEFT/RIGHT
-# Ch 1 (Ch2): Elevator (Pitch) - Right stick UP/DOWN
-# Ch 2 (Ch3): Throttle - Left stick UP/DOWN
-# Ch 3 (Ch4): Rudder (Yaw) - Left stick LEFT/RIGHT
+RC_CHANNEL_YAW = 12        # Channel 13 - Left stick left/right → Rotation
+RC_CHANNEL_SPEED = 13      # Channel 14 - Left stick up/down → Speed control  
+RC_CHANNEL_PITCH = 14      # Channel 15 - Right stick up/down → Forward/backward
+RC_CHANNEL_ROLL = 15       # Channel 16 - Right stick left/right → Strafe
+RC_CHANNEL_HEIGHT = 6      # Channel 7 - Height control
+RC_CHANNEL_CALIBRATION = 8 # Channel 9 - Calibration mode toggle
+RC_CHANNEL_GAIT_1 = 9      # Channel 10 - Gait selector 1 (Gaits 0-2)
+RC_CHANNEL_GAIT_2 = 10     # Channel 11 - Gait selector 2 (Gaits 3-5)
+RC_CHANNEL_SLEEP = 11      # Channel 12 - Sleep mode toggle
 
-RC_CHANNEL_JOY1_X = 3      # Left stick X (Rudder/Yaw) - rotation
-RC_CHANNEL_JOY1_Y = 2      # Left stick Y (Throttle) - forward/back
-RC_CHANNEL_JOY2_X = 0      # Right stick X (Aileron/Roll) - strafe left/right
-RC_CHANNEL_JOY2_Y = 1      # Right stick Y (Elevator/Pitch) - height adjustment
-RC_CHANNEL_SLIDER1 = 4     # Ch5 - Speed control
-RC_CHANNEL_SLIDER2 = 5     # Ch6 - Gait selector
-RC_CHANNEL_BUTTON1 = 6     # Ch7 - Mode switch (calibration)
-RC_CHANNEL_BUTTON2 = 7     # Ch8 - Additional function (sleep)
+# CRSF channel value ranges (11-bit)
+CRSF_MIN = 172
+CRSF_MID = 992
+CRSF_MAX = 1811
 
-# Channel value ranges (standard PWM)
-RC_MIN = 1000
-RC_MID = 1500
-RC_MAX = 2000
+# Gait selector thresholds for 3-position switches
+GAIT_THRESHOLD_LOW = 400    # Below this = position 1 (value ~191)
+GAIT_THRESHOLD_MID = 1400   # Above low, below mid = position 2 (value ~997)
+                            # Above mid = position 3 (value ~1792)
+
+# Channel value ranges (for backwards compatibility)
+RC_MIN = 172   # CRSF minimum
+RC_MID = 992   # CRSF middle
+RC_MAX = 1811  # CRSF maximum
 RC_DEADZONE = 50
 
 # Timeout
