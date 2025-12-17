@@ -30,7 +30,7 @@ PCA_ADDRESS = 0x41            # Second board address (change to 0x40 for first)
 SERVO_CHANNEL = 0             # Which servo channel to control (0-15)
 
 # CRSF Channel Configuration
-ROLL_CHANNEL = 0              # Channel 1 (Roll/Aileron) = index 0
+ROLL_CHANNEL = 15             # Channel 16 (Roll/Aileron) = index 15
 
 # CRSF to Servo mapping
 CRSF_MIN = 172                # CRSF minimum value (11-bit)
@@ -134,9 +134,9 @@ class ServoController:
         self.last_update_time = current_time
         
         # Create channel display
-        if self.last_channels and len(self.last_channels) >= 4:
+        if self.last_channels and len(self.last_channels) >= 16:
             ch_display = (f"Ch1:{self.last_channels[0]:4d} Ch2:{self.last_channels[1]:4d} "
-                         f"Ch3:{self.last_channels[2]:4d} Ch4:{self.last_channels[3]:4d}")
+                         f"Ch3:{self.last_channels[2]:4d} Ch16:{self.last_channels[15]:4d}")
         else:
             ch_display = "No channel data"
         
@@ -154,7 +154,7 @@ def main():
     print("=" * 70)
     print(f"Serial Port:    {SERIAL_PORT} @ {BAUD_RATE} baud")
     print(f"PCA9685:        Address {hex(PCA_ADDRESS)}, Channel {SERVO_CHANNEL}")
-    print(f"RC Channel:     {ROLL_CHANNEL + 1} (Roll/Aileron)")
+    print(f"RC Channel:     {ROLL_CHANNEL + 1} (Roll/Aileron - Channel 16)")
     print(f"Smooth Factor:  {SMOOTH_FACTOR}")
     print("=" * 70)
     print()
